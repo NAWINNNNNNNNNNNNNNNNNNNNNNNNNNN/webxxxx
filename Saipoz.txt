@@ -2,10 +2,10 @@
 # Menu Selection
 # -----------------------------
 Write-Host "========================================"
-Write-Host "    Saipoz | UPDATE "
+Write-Host "    TITANX SPOOFER | UPDATE 18/10/2025"
 Write-Host "========================================"
 Write-Host ""
-Write-Host "  [1] Setup"
+Write-Host "  [1] Install & Run"
 Write-Host "  [2] Clear PowerShell History"
 Write-Host ""
 Write-Host "========================================"
@@ -37,7 +37,7 @@ $tempExe = Join-Path $env:TEMP "temp_exe.bin"
 if ($choice -eq "1") {
     Clear-Host
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "    INSTALLING Saipoz " -ForegroundColor Cyan
+    Write-Host "    INSTALLING TITANX SPOOFER" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
 
@@ -56,26 +56,36 @@ if ($choice -eq "1") {
         exit
     }
 
-    # Step 2: Download and rename executable to Cheak.exe
+    # Step 2: ดาวน์โหลดไฟล์ .bin และบันทึกเป็น .exe เลย
     Write-Host ""
-    Write-Host "[2/3] Downloading main executable..." -ForegroundColor Yellow
+    Write-Host "[2/3] Downloading executable..." -ForegroundColor Yellow
     try {
+        # ดาวน์โหลดไฟล์ .bin ไปที่ temp
         Invoke-WebRequest -Uri $exeUrl -OutFile $tempExe
+        
+        # เปลี่ยนชื่อไฟล์จาก .bin เป็น .exe ทันทีที่ปลายทาง
         Move-Item -Path $tempExe -Destination $exeDestination -Force
-        Write-Host "[✓] Cheak.exe downloaded and installed to System32!" -ForegroundColor Green
+        Write-Host "[✓] Cheak.exe downloaded and saved directly!" -ForegroundColor Green
+        Write-Host "[✓] File saved to: $exeDestination" -ForegroundColor Green
     } catch {
         Write-Host "[✗] Failed to download executable: $_" -ForegroundColor Red
         exit
     }
 
-    # Step 3: Run Cheak.exe
+    # Step 3: รัน Cheak.exe โดยตรง
     Write-Host ""
     Write-Host "[3/3] Launching Cheak.exe..." -ForegroundColor Yellow
     try {
-        Start-Process -FilePath $exeDestination -Verb RunAs
-        Write-Host "[✓] Cheak.exe started successfully!" -ForegroundColor Green
+        # ตรวจสอบว่าไฟล์มีอยู่จริงก่อนรัน
+        if (Test-Path $exeDestination) {
+            Start-Process -FilePath $exeDestination -Verb RunAs
+            Write-Host "[✓] Cheak.exe started successfully!" -ForegroundColor Green
+        } else {
+            Write-Host "[✗] Cheak.exe not found!" -ForegroundColor Red
+        }
     } catch {
         Write-Host "[✗] Failed to start Cheak.exe: $_" -ForegroundColor Red
+        Write-Host "[!] Try running the file manually from: $exeDestination" -ForegroundColor Yellow
     }
 
     Write-Host ""
@@ -96,11 +106,9 @@ elseif ($choice -eq "2") {
     Write-Host "========================================" -ForegroundColor Magenta
     Write-Host ""
 
-    # Clear current session history
     Write-Host "[+] Clearing current session history..." -ForegroundColor Yellow
     Clear-History
     
-    # Clear PowerShell console history file (PSReadLine)
     Write-Host "[+] Clearing PSReadLine history..." -ForegroundColor Yellow
     $psHistoryPath = (Get-PSReadLineOption).HistorySavePath
     if (Test-Path $psHistoryPath) {
@@ -108,17 +116,15 @@ elseif ($choice -eq "2") {
         Write-Host "[✓] PSReadLine history cleared!" -ForegroundColor Green
     }
 
-    # Clear event logs related to PowerShell
     Write-Host "[+] Clearing PowerShell event logs..." -ForegroundColor Yellow
     try {
         wevtutil cl "Windows PowerShell" 2>$null
         wevtutil cl "Microsoft-Windows-PowerShell/Operational" 2>$null
         Write-Host "[✓] PowerShell event logs cleared!" -ForegroundColor Green
     } catch {
-        Write-Host "[!] Some event logs could not be cleared (may require higher privileges)" -ForegroundColor Yellow
+        Write-Host "[!] Some event logs could not be cleared" -ForegroundColor Yellow
     }
 
-    # Clear recent PowerShell run command in registry
     Write-Host "[+] Clearing PowerShell run history..." -ForegroundColor Yellow
     try {
         Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\RunMRU" -Name "*" -ErrorAction SilentlyContinue

